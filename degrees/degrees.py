@@ -90,14 +90,47 @@ def shortest_path(source, target):
     that connect the source to the target.
 
     If no possible path, returns None.
+
+    Our actions are movies, which take us from one actor to another
+    Our initial state and goal state are defined by the two people we’re trying to connect.
+    By using breadth-first search, we can find the shortest path from one actor to another.
     """
+    # Create node from first person ID (source)
+    initial_state = Node(state=source, parent=None, action=None)
+    # Call the frontier and add the initial state
+    frontier = QueueFrontier()
+    frontier.add(initial_state)
 
-    # TODO
+    visited = set()
 
+    while not frontier.empty():
+        current_node = frontier.remove()
 
+        visited.add(current_node)
 
+        neighbors = neighbors_for_person(current_node.state)
 
-    #raise NotImplementedError
+        for mutual_film, neighbor_actor in neighbors:
+            # Only actors and films not in visited
+            if neighbor_actor not in visited and mutual_film not in visited:
+
+                if neighbor_actor == target:
+                    solution = [(mutual_film, neighbor_actor)]
+
+                    while current_node.parent is not None:
+                        solution.append((current_node.action, current_node.state))
+                        current_node = current_node.parent
+
+                    solution.reverse()
+
+                    return solution
+
+            # add to frontier after checking for target
+            child = Node(neighbor_actor, current_node, mutual_film)
+            frontier.add(child)
+
+    # Search returned no connection
+    return None
 
 
 def person_id_for_name(name):
